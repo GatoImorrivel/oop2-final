@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funcionários</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #4facfe;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .navbar {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 10px;
+            display: inline-block;
+        }
+
+        .navbar a:hover {
+            background-color: #555;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+
+        .btn-primary {
+            background-color: #4facfe;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3d9cfd;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #da190b;
+        }
+
+        .btn-info {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #0b7dda;
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background-color: #4facfe;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .error {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filtro-info {
+            background-color: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: #1976d2;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Funcionários</h1>
+    </div>
+
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/departamentos">Departamentos</a>
+        <a href="/cargos">Cargos</a>
+        <a href="/funcionarios">Funcionários</a>
+    </div>
+
+    <div class="container">
+        <div th:if="${mensagem}" class="message success" th:text="${mensagem}"></div>
+        <div th:if="${erro}" class="message error" th:text="${erro}"></div>
+
+        <div class="controls">
+            <a href="/funcionarios/novo" class="btn btn-primary">+ Novo Funcionário</a>
+
+            <select name="departamento"
+                onchange="if(this.value) window.location.href='/funcionarios?departamentoId=' + this.value">
+                <option value="">-- Filtrar por Departamento --</option>
+                <option th:each="dept : ${departamentos}" th:value="${dept.id}" th:text="${dept.nome}"></option>
+            </select>
+
+            <select name="cargo" onchange="if(this.value) window.location.href='/funcionarios?cargoId=' + this.value">
+                <option value="">-- Filtrar por Cargo --</option>
+                <option th:each="cargo : ${cargos}" th:value="${cargo.id}" th:text="${cargo.nome}"></option>
+            </select>
+
+            <a href="/funcionarios" class="btn btn-info">Limpar Filtros</a>
+        </div>
+
+        <div th:if="${filtro}" class="filtro-info" th:text="'Filtro ativo: ' + ${filtro}"></div>
+
+        <table th:if="${!funcionarios.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Departamento</th>
+                    <th>Cargo</th>
+                    <th>Salário</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="func : ${funcionarios}">
+                    <td th:text="${func.id}"></td>
+                    <td th:text="${func.nome}"></td>
+                    <td th:text="${func.email}"></td>
+                    <td th:text="${func.departamento.nome}"></td>
+                    <td th:text="${func.cargo.nome}"></td>
+                    <td th:text="'R$ ' + ${#numbers.formatDecimal(func.salario, 1, 2, 'COMMA')}"></td>
+                    <td class="actions">
+                        <a th:href="@{/funcionarios/{id}(id=${func.id})}" class="btn btn-info">Ver</a>
+                        <a th:href="@{/funcionarios/{id}/editar(id=${func.id})}" class="btn btn-primary">Editar</a>
+                        <a th:href="@{/funcionarios/{id}/excluir(id=${func.id})}" class="btn btn-danger"
+                            onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${funcionarios.isEmpty()}" style="text-align: center; color: #999; margin-top: 30px;">
+            Nenhum funcionário cadastrado.
+        </p>
+    </div>
+</body>
+
+</html>

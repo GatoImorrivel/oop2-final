@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${funcionario.id} ? 'Editar Funcionário' : 'Novo Funcionário'">Funcionário</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #4facfe;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .navbar {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 10px;
+            display: inline-block;
+        }
+
+        .navbar a:hover {
+            background-color: #555;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 1em;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 5px rgba(79, 172, 254, 0.3);
+        }
+
+        .required {
+            color: #f44336;
+            margin-left: 3px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 10px 5px 0 0;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: #4facfe;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3d9cfd;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .error {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 th:text="${funcionario.id != null} ? 'Editar Funcionário' : 'Novo Funcionário'">Funcionário</h1>
+    </div>
+
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/departamentos">Departamentos</a>
+        <a href="/cargos">Cargos</a>
+        <a href="/funcionarios">Funcionários</a>
+    </div>
+
+    <div class="container">
+        <div th:if="${erro}" class="message error" th:text="${erro}"></div>
+
+        <form th:if="${funcionario.id == null}" action="/funcionarios" method="post">
+            <div class="form-group">
+                <label for="nome">Nome <span class="required">*</span></label>
+                <input type="text" id="nome" name="nome" th:value="${funcionario.nome}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" th:value="${funcionario.email}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="dataContratacao">Data de Contratação <span class="required">*</span></label>
+                <input type="date" id="dataContratacao" name="dataContratacao"
+                    th:value="${#calendars.format(funcionario.dataContratacao, 'yyyy-MM-dd')}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="salario">Salário <span class="required">*</span></label>
+                <input type="number" id="salario" name="salario" step="0.01" th:value="${funcionario.salario}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="departamento">Departamento <span class="required">*</span></label>
+                <select id="departamento" name="departamento" required>
+                    <option value="">-- Selecione um departamento --</option>
+                    <option th:each="dept : ${departamentos}" th:value="${dept.id}" th:text="${dept.nome}"
+                        th:selected="${funcionario.departamento?.id == dept.id}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cargo">Cargo <span class="required">*</span></label>
+                <select id="cargo" name="cargo" required>
+                    <option value="">-- Selecione um cargo --</option>
+                    <option th:each="cargo : ${cargos}" th:value="${cargo.id}" th:text="${cargo.nome}"
+                        th:selected="${funcionario.cargo?.id == cargo.id}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="chefe">Chefe (Opcional)</label>
+                <select id="chefe" name="chefe">
+                    <option value="">-- Nenhum chefe --</option>
+                    <option th:each="func : ${funcionarios}" th:value="${func.id}" th:text="${func.nome}"
+                        th:selected="${funcionario.chefe?.id == func.id}"></option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Criar Funcionário</button>
+            <a href="/funcionarios" class="btn btn-secondary">Cancelar</a>
+        </form>
+
+        <form th:if="${funcionario.id != null}" th:action="@{/funcionarios/{id}/atualizar(id=${funcionario.id})}"
+            method="post">
+            <div class="form-group">
+                <label for="nome">Nome <span class="required">*</span></label>
+                <input type="text" id="nome" name="nome" th:value="${funcionario.nome}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" th:value="${funcionario.email}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="dataContratacao">Data de Contratação <span class="required">*</span></label>
+                <input type="date" id="dataContratacao" name="dataContratacao"
+                    th:value="${#calendars.format(funcionario.dataContratacao, 'yyyy-MM-dd')}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="salario">Salário <span class="required">*</span></label>
+                <input type="number" id="salario" name="salario" step="0.01" th:value="${funcionario.salario}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="departamento">Departamento <span class="required">*</span></label>
+                <select id="departamento" name="departamento" required>
+                    <option value="">-- Selecione um departamento --</option>
+                    <option th:each="dept : ${departamentos}" th:value="${dept.id}" th:text="${dept.nome}"
+                        th:selected="${funcionario.departamento?.id == dept.id}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cargo">Cargo <span class="required">*</span></label>
+                <select id="cargo" name="cargo" required>
+                    <option value="">-- Selecione um cargo --</option>
+                    <option th:each="cargo : ${cargos}" th:value="${cargo.id}" th:text="${cargo.nome}"
+                        th:selected="${funcionario.cargo?.id == cargo.id}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="chefe">Chefe (Opcional)</label>
+                <select id="chefe" name="chefe">
+                    <option value="">-- Nenhum chefe --</option>
+                    <option th:each="func : ${funcionarios}" th:value="${func.id}" th:text="${func.nome}"
+                        th:selected="${funcionario.chefe?.id == func.id}"></option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Atualizar Funcionário</button>
+            <a href="/funcionarios" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</body>
+
+</html>

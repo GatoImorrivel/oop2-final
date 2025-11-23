@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${cargo.nome}">Cargo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #f093fb;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .navbar {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 10px;
+            display: inline-block;
+        }
+
+        .navbar a:hover {
+            background-color: #555;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-group {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #f093fb;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 10px 5px 0 0;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: #f093fb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #e07fe8;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #da190b;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th {
+            background-color: #f093fb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 th:text="${cargo.nome}">Cargo</h1>
+    </div>
+
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/departamentos">Departamentos</a>
+        <a href="/cargos">Cargos</a>
+        <a href="/funcionarios">Funcionários</a>
+    </div>
+
+    <div class="container">
+        <div class="info-group">
+            <div class="info-label">ID</div>
+            <div class="info-value" th:text="${cargo.id}">ID</div>
+        </div>
+
+        <div class="info-group">
+            <div class="info-label">Nome</div>
+            <div class="info-value" th:text="${cargo.nome}">Nome</div>
+        </div>
+
+        <div class="info-group">
+            <div class="info-label">Descrição</div>
+            <div class="info-value" th:text="${cargo.descricao ?: 'N/A'}">Descrição</div>
+        </div>
+
+        <a th:href="@{/cargos/{id}/editar(id=${cargo.id})}" class="btn btn-primary">Editar</a>
+        <a th:href="@{/cargos/{id}/excluir(id=${cargo.id})}" class="btn btn-danger"
+            onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+        <a href="/cargos" class="btn btn-secondary">Voltar</a>
+
+        <h3 style="margin-top: 40px; color: #333;">Funcionários neste Cargo</h3>
+
+        <table th:if="${!cargo.funcionarios.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Departamento</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="func : ${cargo.funcionarios}">
+                    <td th:text="${func.id}"></td>
+                    <td th:text="${func.nome}"></td>
+                    <td th:text="${func.email}"></td>
+                    <td th:text="${func.departamento.nome}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${cargo.funcionarios.isEmpty()}" style="margin-top: 20px; color: #999;">
+            Nenhum funcionário neste cargo.
+        </p>
+    </div>
+</body>
+
+</html>
