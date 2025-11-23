@@ -4,11 +4,13 @@ import com.example.demo.model.Funcionario;
 import com.example.demo.model.Departamento;
 import com.example.demo.model.Cargo;
 import com.example.demo.repository.FuncionarioRepository;
+import com.example.demo.util.FuzzyMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FuncionarioService {
@@ -159,5 +161,28 @@ public class FuncionarioService {
         if (funcionario.getId() != null && funcionario.getId().equals(chefe.getId())) {
             throw new IllegalArgumentException("Um funcionário não pode ser chefe de si mesmo");
         }
+    }
+
+    public List<Funcionario> fuzzySearch(List<Funcionario> funcionarios, String searchTerm) {
+        return funcionarios.stream()
+                .filter(f -> FuzzyMatcher.fuzzyMatch(f.getNome(), searchTerm) ||
+                        FuzzyMatcher.fuzzyMatch(f.getEmail(), searchTerm) ||
+                        FuzzyMatcher.fuzzyMatch(f.getDepartamento().getNome(), searchTerm) ||
+                        FuzzyMatcher.fuzzyMatch(f.getCargo().getNome(), searchTerm))
+                .sorted((f1, f2) -> {
+                    double score1 = calculateSearchScore(f1, searchTerm);
+                    double score2 = calculateSearchScore(f2, searchTerm);
+                    return Double.compare(score2, score1);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private double calculateSearchScore(Funcionario funcionario, String searchTerm) {
+        double nameScore = FuzzyMatcher.fuzzyScore(funcionario.getNome(), searchTerm);
+        double emailScore = FuzzyMatcher.fuzzyScore(funcionario.getEmail(), searchTerm);
+        double deptScore = FuzzyMatcher.fuzzyScore(funcionario.getDepartamento().getNome(), searchTerm);
+        double cargoScore = FuzzyMatcher.fuzzyScore(funcionario.getCargo().getNome(), searchTerm);
+
+        return Math.max(nameScore, Math.max(emailScore, Math.max(deptScore, cargoScore)));
     }
 }

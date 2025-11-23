@@ -189,6 +189,17 @@
                 <option th:each="cargo : ${cargos}" th:value="${cargo.id}" th:text="${cargo.nome}"></option>
             </select>
 
+            <select name="chefe" onchange="if(this.value) window.location.href='/funcionarios?chefeId=' + this.value">
+                <option value="">-- Filtrar por Chefe --</option>
+                <option th:each="func : ${funcionarios}" th:if="${func.id != null}" th:value="${func.id}"
+                    th:text="${func.nome}"></option>
+            </select>
+
+            <input type="text" id="search" placeholder="Buscar por nome, email, cargo ou departamento..."
+                th:value="${searchTerm}"
+                style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; flex: 1; max-width: 300px;">
+            <button onclick="searchFuncionarios()" class="btn btn-primary">Buscar</button>
+
             <a href="/funcionarios" class="btn btn-info">Limpar Filtros</a>
         </div>
 
@@ -228,6 +239,21 @@
             Nenhum funcionário cadastrado.
         </p>
     </div>
+
+    <script>
+        function searchFuncionarios() {
+            const searchTerm = document.getElementById('search').value;
+            if (searchTerm.trim()) {
+                window.location.href = '/funcionarios?search=' + encodeURIComponent(searchTerm);
+            }
+        }
+
+        document.getElementById('search').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchFuncionarios();
+            }
+        });
+    </script>
 </body>
 
 </html>

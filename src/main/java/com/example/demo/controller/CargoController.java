@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -18,8 +19,15 @@ public class CargoController {
     private CargoService cargoService;
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("cargos", cargoService.listarTodos());
+    public String listar(Model model, @RequestParam(required = false) String search) {
+        List<Cargo> cargos = cargoService.listarTodos();
+
+        if (search != null && !search.trim().isEmpty()) {
+            cargos = cargoService.fuzzySearch(cargos, search);
+            model.addAttribute("searchTerm", search);
+        }
+
+        model.addAttribute("cargos", cargos);
         return "cargo/lista";
     }
 

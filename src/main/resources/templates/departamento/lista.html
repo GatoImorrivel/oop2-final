@@ -152,7 +152,13 @@
         <div th:if="${mensagem}" class="message success" th:text="${mensagem}"></div>
         <div th:if="${erro}" class="message error" th:text="${erro}"></div>
 
-        <a href="/departamentos/novo" class="btn btn-primary">+ Novo Departamento</a>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
+            <a href="/departamentos/novo" class="btn btn-primary">+ Novo Departamento</a>
+            <input type="text" id="search" placeholder="Buscar departamentos..." th:value="${searchTerm}"
+                style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; flex: 1; max-width: 300px;">
+            <button onclick="searchDepartamentos()" class="btn btn-primary">Buscar</button>
+            <a href="/departamentos" class="btn btn-info">Limpar</a>
+        </div>
 
         <table th:if="${!departamentos.isEmpty()}">
             <thead>
@@ -183,6 +189,21 @@
             Nenhum departamento cadastrado.
         </p>
     </div>
+
+    <script>
+        function searchDepartamentos() {
+            const searchTerm = document.getElementById('search').value;
+            if (searchTerm.trim()) {
+                window.location.href = '/departamentos?search=' + encodeURIComponent(searchTerm);
+            }
+        }
+
+        document.getElementById('search').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchDepartamentos();
+            }
+        });
+    </script>
 </body>
 
 </html>

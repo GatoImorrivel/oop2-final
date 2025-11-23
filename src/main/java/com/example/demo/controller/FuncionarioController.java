@@ -33,6 +33,7 @@ public class FuncionarioController {
             @RequestParam(required = false) Long departamentoId,
             @RequestParam(required = false) Long cargoId,
             @RequestParam(required = false) Long chefeId,
+            @RequestParam(required = false) String search,
             Model model) {
         List<Funcionario> funcionarios;
 
@@ -64,9 +65,16 @@ public class FuncionarioController {
             funcionarios = funcionarioService.listarTodos();
         }
 
+        // Apply fuzzy search if search parameter is provided
+        if (search != null && !search.trim().isEmpty()) {
+            funcionarios = funcionarioService.fuzzySearch(funcionarios, search);
+            model.addAttribute("searchTerm", search);
+        }
+
         model.addAttribute("funcionarios", funcionarios);
         model.addAttribute("departamentos", departamentoService.listarTodos());
         model.addAttribute("cargos", cargoService.listarTodos());
+        model.addAttribute("funcionarios", funcionarios);
         return "funcionario/lista";
     }
 

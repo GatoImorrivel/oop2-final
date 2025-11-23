@@ -152,7 +152,13 @@
         <div th:if="${mensagem}" class="message success" th:text="${mensagem}"></div>
         <div th:if="${erro}" class="message error" th:text="${erro}"></div>
 
-        <a href="/cargos/novo" class="btn btn-primary">+ Novo Cargo</a>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
+            <a href="/cargos/novo" class="btn btn-primary">+ Novo Cargo</a>
+            <input type="text" id="search" placeholder="Buscar cargos..." th:value="${searchTerm}"
+                style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; flex: 1; max-width: 300px;">
+            <button onclick="searchCargos()" class="btn btn-primary">Buscar</button>
+            <a href="/cargos" class="btn btn-info">Limpar</a>
+        </div>
 
         <table th:if="${!cargos.isEmpty()}">
             <thead>
@@ -182,6 +188,21 @@
             Nenhum cargo cadastrado.
         </p>
     </div>
+
+    <script>
+        function searchCargos() {
+            const searchTerm = document.getElementById('search').value;
+            if (searchTerm.trim()) {
+                window.location.href = '/cargos?search=' + encodeURIComponent(searchTerm);
+            }
+        }
+
+        document.getElementById('search').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchCargos();
+            }
+        });
+    </script>
 </body>
 
 </html>

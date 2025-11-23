@@ -2,10 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.model.Cargo;
 import com.example.demo.repository.CargoRepository;
+import com.example.demo.util.FuzzyMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CargoService {
@@ -52,5 +54,21 @@ public class CargoService {
             throw new IllegalArgumentException("Cargo não encontrado");
         }
         cargoRepository.deleteById(id);
+    }
+
+    public List<Cargo> fuzzySearch(List<Cargo> cargos, String searchTerm) {
+        return cargos.stream()
+                .filter(c -> FuzzyMatcher.fuzzyMatch(c.getNome(), searchTerm) ||
+                        FuzzyMatcher.fuzzyMatch(c.getDescricao() != null ? c.getDescricao() : "", searchTerm))
+                .sorted((c1, c2) -> {
+                    double score1 = Math.max(
+                            FuzzyMatcher.fuzzyScore(c1.getNome(), searchTerm),
+                            FuzzyMatcher.fuzzyScore(c1.getDescricao() != null ? c1.getDescricao() : "", searchTerm));
+                    double score2 = Math.max(
+                            FuzzyMatcher.fuzzyScore(c2.getNome(), searchTerm),
+                            FuzzyMatcher.fuzzyScore(c2.getDescricao() != null ? c2.getDescricao() : "", searchTerm));
+                    return Double.compare(score2, score1);
+                })
+                .collect(Collectors.toList());
     }
 }

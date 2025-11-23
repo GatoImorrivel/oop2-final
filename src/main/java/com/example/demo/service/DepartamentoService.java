@@ -2,10 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.model.Departamento;
 import com.example.demo.repository.DepartamentoRepository;
+import com.example.demo.util.FuzzyMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartamentoService {
@@ -52,5 +54,21 @@ public class DepartamentoService {
             throw new IllegalArgumentException("Departamento não encontrado");
         }
         departamentoRepository.deleteById(id);
+    }
+
+    public List<Departamento> fuzzySearch(List<Departamento> departamentos, String searchTerm) {
+        return departamentos.stream()
+                .filter(d -> FuzzyMatcher.fuzzyMatch(d.getNome(), searchTerm) ||
+                        FuzzyMatcher.fuzzyMatch(d.getDescricao() != null ? d.getDescricao() : "", searchTerm))
+                .sorted((d1, d2) -> {
+                    double score1 = Math.max(
+                            FuzzyMatcher.fuzzyScore(d1.getNome(), searchTerm),
+                            FuzzyMatcher.fuzzyScore(d1.getDescricao() != null ? d1.getDescricao() : "", searchTerm));
+                    double score2 = Math.max(
+                            FuzzyMatcher.fuzzyScore(d2.getNome(), searchTerm),
+                            FuzzyMatcher.fuzzyScore(d2.getDescricao() != null ? d2.getDescricao() : "", searchTerm));
+                    return Double.compare(score2, score1);
+                })
+                .collect(Collectors.toList());
     }
 }

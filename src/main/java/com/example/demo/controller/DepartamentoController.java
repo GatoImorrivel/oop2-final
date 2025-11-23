@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -18,8 +19,15 @@ public class DepartamentoController {
     private DepartamentoService departamentoService;
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("departamentos", departamentoService.listarTodos());
+    public String listar(Model model, @RequestParam(required = false) String search) {
+        List<Departamento> departamentos = departamentoService.listarTodos();
+
+        if (search != null && !search.trim().isEmpty()) {
+            departamentos = departamentoService.fuzzySearch(departamentos, search);
+            model.addAttribute("searchTerm", search);
+        }
+
+        model.addAttribute("departamentos", departamentos);
         return "departamento/lista";
     }
 
